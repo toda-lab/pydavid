@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "pydavid"
+version = "1.0.0"
+description = "A Python interface of Open-David"
+authors = ["Takahisa Toda <toda@disc.lab.uec.ac.jp>"]
+license = "MIT"
+readme = "README.rst"
+repository = "https://github.com/toda-lab/pydavid"
+keywords = [
+    "mathematics",
+    "hypergraph",
+    "directed hypergraph",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+dhgraph = "^1.0.0"
+
+pytest = { version ="^8.1.1", optional = true }
+Sphinx = { version = "^7.1.2", optional = true }
+sphinx-removed-in = { version = "^0.2.1", optional = true }
+sphinxcontrib-trio = { version = "^1.1.2", optional = true }
+pallets-sphinx-themes = { version = "^2.1.1", optional= true }
+
+
+[tool.poetry.extras]
+test = ["pytest"]
+docs = ["Sphinx", "sphinx-removed-in", "sphinxcontrib-trio", "pallets-sphinx-themes"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
