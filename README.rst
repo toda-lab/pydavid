@@ -20,7 +20,7 @@ Usage
 
 The following is a sample code.
 Before run, please set approapriate path to an executable file of Open-David
-in your computer, download ``toy.dav`` in ``data`` of this repository, and
+in your computer, download ``toy.dav`` in this repository, and
 place it in your current working directly.
 
 .. code:: python
@@ -36,7 +36,7 @@ place it in your current working directly.
 
     observation_list = ["police(John)", "die(E1)", "subj(E1, Mary)",\
         "arrest(E2)", "subj(E2, x)", "obj(E2, Bob)"]
-    required_atom_list = ["x = John"]
+    required_atom_list = ["(x = John)"]
     OpenDavid.set_problem(observation_list, required_atom_list)
     json_str = OpenDavid.run()
     # json is converted to a directed hypergraph (a dhgraph object).
