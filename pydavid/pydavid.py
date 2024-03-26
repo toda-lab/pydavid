@@ -161,7 +161,7 @@ class OpenDavid:
         """Builds a proof-graph from an output of Open-David.
 
         If there are many nodes in the tail of a hyperarc,
-        a hyperarc is added per node.
+        a hyperarc is added per node but with the same label.
         
         Args:
             json_str: An output of Open-David in json format.
@@ -194,7 +194,7 @@ class OpenDavid:
         for item in solution["edges"]:
             head = item["head"]
             tail = item["tail"]
-            # If there many nodes in tail, add a hyperarc per node.
+            # Add a hyperarc per node but with the same label.
             for v in vertices_dict[tail]:
-                g.add_hyperarc(vertices_dict[head], v)
+                g.add_hyperarc(vertices_dict[head], v, label=str(item["index"]))
         return g 
