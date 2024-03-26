@@ -1,7 +1,0 @@
-# ---- Problems
-problem test {
-        observe { say_seer(D, D) ^ vote(C,B) ^ say_seer(A,A) ^ vote(E,D) ^ say_divined_human(D,A) ^ say_divined_werewolf(A,D) ^ vote(D,C) ^ vote(A,D) ^ say_seer(C,C) ^ say_divined_human(C,B) ^ say_villager(B,B) }
-#        require { villager1(any) ^ villager2(any) ^ seer(any) ^ werewolf(any) ^ possessed(any)}
-        require { werewolf(C) }
-}
-

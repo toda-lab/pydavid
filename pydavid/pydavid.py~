@@ -57,23 +57,43 @@ class OpenDavid:
         cls._knowledge_base = data 
 
     @classmethod
-    def set_problem(cls, data: str) -> None:
+    def set_problem(cls, observation_list: List[str],\
+        required_atom_list: List[str] = []) -> None:
         """Sets a problem.
 
         Args:
-            data: A problem.
+            observation_list: A list of observations in string format.
+            required_atom_list: A list of atoms to be satisfied in solution hypothesis.
 
         Returns:
             None
 
         Raises:
-            TypeError:  if data is not a str.
-            ValueError: if data is empty.
+            TypeError:  if observation_list is not a list.
+            TypeError:  if required_atom_list is not a list.
+            TypeError:  if some entry in observation_list is not a str.
+            TypeError:  if some entry in required_atom_list is not a str.
+            ValueError: if observation_list is empty.
         """
-        if not isinstance(data, str):
+        if not isinstance(observation_list, list)\
+            or not isinstance(required_atom_list, list):
             raise TypeError()
-        if data == "":
-            raise ValueError("empty problem")
+        for x in observation_list:
+            if not isinstance(x, str):
+                raise TypeError()
+        for x in required_atom_list:
+            if not isinstance(x, str):
+                raise TypeError()
+        if len(observation_list) == 0:
+            raise ValueError("no observation given.")
+        data = ""
+        data += "problem {\n"
+        data += "    observe { "\
+            + " ^ ".join(observation_list) + " }\n"
+        if len(required_atom_list) > 0:
+            data += "    require { "\
+                + " ^ ".join(required_atom_list) + " }\n"
+        data += "}\n"
         cls._problem = data 
         
     @classmethod
@@ -82,7 +102,7 @@ class OpenDavid:
         enable_perturbation: bool = True,\
         timeout: Optional[float] = None, max_threads: Optional[int] = None,\
         ) -> str:
-        """Runs an Open-David.
+        """Runs an Open-David using subprocess module.
 
         Args:
             generator: An LHS generator: "naive", "simple", "astar".
@@ -97,6 +117,8 @@ class OpenDavid:
             An output of Open-David in json format.
 
         Raises:
+            CalledProcessError: if subprocess ended with non-zero code.
+            TimeoutExpired: if timeout exprired.
         """
         if not os.access(cls._david_path, os.X_OK):
             raise ValueError(f"no executable file found: {cls._david_path}")
@@ -121,16 +143,14 @@ class OpenDavid:
                 "-c",f"{generator},{converter},{solver}",\
                 "-k",f"{tempdir}/kb",\
                 "-o",f"mini:{tempdir}/output"]
-            #if enable_pseudo_positive:
-            #    cmd.append("--pseudo-positive")
-            #if timeout is not None:
-            #    cmd.append("-T f{timeout}s")
-            #if max_threads is not None:
-            #    cmd.append("-P f{max_threads}")
-            #if enable_perturbation:
-            #    cmd.append("-p")
+            if enable_pseudo_positive:
+                cmd.append("--pseudo-positive")
+            if max_threads is not None:
+                cmd.append("-P f{max_threads}")
+            if enable_perturbation:
+                cmd.append("-p")
             cmd.append(f"{tempdir}/in.dav")
-            res = subprocess.run(cmd, capture_output=True,\
+            res = subprocess.run(cmd, timeout=timeout, capture_output=True,\
                 check=True, text=True)
                   
             with open(f"{tempdir}/output", mode="r") as f:
@@ -154,8 +174,9 @@ class OpenDavid:
         g = DirectedHypergraph()
         json_dict = json.loads(json_str)
         if not "results" in json_dict\
-            or len(json_dict["results"]) == 0:
-            return g
+            or len(json_dict["results"]) == 0\
+            or not "solution" in json_dict["results"][0]:
+            return g  # empty graph if no solution.
         solution = json_dict["results"][0]["solution"]
         if not "nodes" in solution:
             return g

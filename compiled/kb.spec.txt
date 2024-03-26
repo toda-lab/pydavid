@@ -1,5 +1,0 @@
-kb-version: 2
-time-stamp: 2024/03/26 23:45:05
-num-rules: 79
-num-predicates: 47
-heuristic: basic
