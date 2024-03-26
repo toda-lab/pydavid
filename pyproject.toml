@@ -1,15 +1,17 @@
 [tool.poetry]
 name = "pydavid"
 version = "1.0.0"
-description = "A Python interface of Open-David"
+description = "A simple Python interface of Open-David"
 authors = ["Takahisa Toda <toda@disc.lab.uec.ac.jp>"]
 license = "MIT"
 readme = "README.rst"
 repository = "https://github.com/toda-lab/pydavid"
 keywords = [
-    "mathematics",
-    "hypergraph",
-    "directed hypergraph",
+    "logic",
+    "inference",
+    "abduction",
+    "explanation",
+    "artificial intelligence",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -21,7 +23,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3 :: Only",
-    "Topic :: Scientific/Engineering :: Mathematics",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 

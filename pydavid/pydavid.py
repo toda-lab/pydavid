@@ -1,53 +1,115 @@
+from typing import Union, Optional
 import subprocess
 import tempfile
-import os
+import os, PathLike
 import json
 
 from dhgraph import DirectedHypergraph
 
 class OpenDavid:
-    """Python Interface for Open David Version 1.73"""
+    """Provides a simple Python Interface of Open-David Version 1.73.
 
-    _david_path: str = ""
-    """path to executable file"""
+    See: https://github.com/aurtg/open-david/blob/master/manual_en.md .
+    """
+
+    _david_path: str     = ""
+    """Path to executable file"""
     _knowledge_base: str = ""
-    """knowledge base"""
-    _problem: str = ""
-    """problem"""
+    """Knowledge base"""
+    _problem: str        = ""
+    """Problem"""
 
     @classmethod
-    def set_david_path(cls, path: str) -> None:
+    def set_david_path(cls, path: Union[PathLike, str]) -> None:
+        """Sets a path to an executable file of Open-David.
+
+        Args:
+            path: A path to executable file of Open-David.
+        
+        Returns:
+            None
+
+        Raises:
+            ValueError: if no executable file found.
+        """
+        if not os.access(path, os.X_OK):
+            raise ValueError(f"no executable file found: {path}")
         cls._david_path = path
 
     @classmethod
-    def set_knowledge_base(cls, lines: str) -> None:
-        if lines == "":
-            raise Exception("empty knowledge base")
-        cls._knowledge_base = lines 
+    def set_knowledge_base(cls, data: str) -> None:
+        """Sets a knowledge base data.
+
+        Args:
+            data: A knowledge base.
+
+        Returns:
+            None
+
+        Raises:
+            TypeError:  if data is not a str.
+            ValueError: if data is empty.
+        """
+        if not isinstance(data, str):
+            raise TypeError()
+        if data == "":
+            raise ValueError("empty knowledge base")
+        cls._knowledge_base = data 
 
     @classmethod
-    def set_problem(cls, lines: str) -> None:
-        if lines == "":
-            raise Exception("empty problem")
-        cls._problem = lines
+    def set_problem(cls, data: str) -> None:
+        """Sets a problem.
+
+        Args:
+            data: A problem.
+
+        Returns:
+            None
+
+        Raises:
+            TypeError:  if data is not a str.
+            ValueError: if data is empty.
+        """
+        if not isinstance(data, str):
+            raise TypeError()
+        if data == "":
+            raise ValueError("empty problem")
+        cls._problem = data 
         
     @classmethod
     def run(cls, generator: str = "astar", converter: str = "weighted",\
-        solver: str = "scip", timeout: float = None) -> str:
-        if cls._david_path == "":
-            raise Exception(f"_david_path is not yet set.")
+        solver: str = "scip", enable_pseudo_positive: bool = True,\
+        enable_perturbation: bool = True,\
+        timeout: Optional[float] = None, max_threads: Optional[int] = None,\
+        ) -> str:
+        """Runs an Open-David.
+
+        Args:
+            generator: An LHS generator: "naive", "simple", "astar".
+            converter: an ILP converter: "weighted", "etcetera".
+            solver: An ILP solver: "gurobi","lpsolve","cbc","scip".
+            enable_pseudo_positive: Whether pseudo-positive option is enabled.
+            enable_perturbation: Whether perturbation option is enabled.
+            timeout: Timeout in seconds.
+            max_threads: The maximum number of threads.
+
+        Returns:
+            An output of Open-David in json format.
+
+        Raises:
+        """
         if not os.access(cls._david_path, os.X_OK):
-            raise Exception(f"no executable file found: {cls._david_path}")
+            raise ValueError(f"no executable file found: {cls._david_path}")
         if cls._knowledge_base == "":
             raise Exception("_knowledge_base is not yet set.")
         if cls._problem == "":
             raise Exception("_problem is not yet set.")
         if not generator in ["naive", "simple", "astar"]:
-            raise Exception(f"invalid LHS generator: {generator}")
+            raise ValueError(f"invalid LHS generator: {generator}")
         if not converter in ["weighted", "etcetera"]:
-            raise Exception(f"invalid ILP converter: {generator}")
+            raise ValueError(f"invalid ILP converter: {generator}")
         if not solver in ["gurobi","lpsolve","cbc","scip"]:
-            raise Exception(f"invalid ILP solver: {solver}")
+            raise ValueError(f"invalid ILP solver: {solver}")
             
         with tempfile.TemporaryDirectory() as tempdir:
             with open(f"{tempdir}/in.dav", mode="w") as f:
@@ -59,22 +121,52 @@ class OpenDavid:
                 "-c",f"{generator},{converter},{solver}",\
                 "-k",f"{tempdir}/kb",\
                 "-o",f"mini:{tempdir}/output",\
-                "--pseudo-positive",\
                 f"{tempdir}/in.dav"]
-            res = subprocess.run(cmd, timeout=timeout, capture_output=True, check=True, text=True)
+            if enable_pseudo_positive:
+                cmd.append("--pseudo-positive")
+            if timeout is not None:
+                cmd.append("-T f{timeout}s")
+            if max_threads is not None:
+                cmd.append("-P f{max_threads}")
+            if enable_perturbation:
+                cmd.append("-p")
+            res = subprocess.run(cmd, capture_output=True,\
+                check=True, text=True)
                   
             with open(f"{tempdir}/output", mode="r") as f:
                 return f.read()
 
     @staticmethod
     def build_proofgraph(json_str: str) -> DirectedHypergraph:
+        """Builds a proof-graph from an output of Open-David.
+
+        Args:
+            json_str: An output of Open-David in json format.
+
+        Returns:
+            A directed hypergraph.
+
+        Raises:
+            TypeError: if json_str is not a str.
+        """
+        if not isinstance(json_str, str):
+            raise TypeError()
         g = DirectedHypergraph()
         json_dict = json.loads(json_str)
+        if not "results" in solution\
+            or not "solution" in json_dict["results"][0]:
+            return g
         solution = json_dict["results"][0]["solution"]
+        if not "nodes" in solution:
+            return g
         for item in solution["nodes"]:
             g.add_vertex(item["index"], label=item["atom"])
+        if not "hypernodes" in solution:
+            return g
         vertices_dict = {item["index"]:tuple(item["nodes"])\
                         for item in solution["hypernodes"]}
+        if not "edges" in solution:
+            return g
         for item in solution["edges"]:
             head = item["head"]
             tail = item["tail"]

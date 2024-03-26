@@ -1,4 +1,4 @@
-# pydavid: A Python interface of Open-David
+# pydavid: A simple Python interface of Open-David
 
 import importlib.metadata
 
