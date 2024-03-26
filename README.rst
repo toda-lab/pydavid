@@ -29,10 +29,11 @@ place it in your current working directly.
     from dhgraph    import DirectedHypergraph
 
     # PLEASE MODIFY PATH ACCORDING TO YOUR ENVIRONMENT.
-    OpenDavid.set_david_path("/user/loca/bin/david")
+    OpenDavid.set_david_path("/usr/local/bin/david")
     with open("toy.dav", mode="r") as f:
         data = f.read()
         OpenDavid.set_knowledge_base(data)
+
     observation_list = ["police(John)", "die(E1)", "subj(E1, Mary)",\
         "arrest(E2)", "subj(E2, x)", "obj(E2, Bob)"]
     required_atom_list = ["x = John"]
