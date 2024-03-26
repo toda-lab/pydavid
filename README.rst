@@ -38,8 +38,9 @@ place it in your current working directly.
         "arrest(E2)", "subj(E2, x)", "obj(E2, Bob)"]
     required_atom_list = ["(x = John)"]
     OpenDavid.set_problem(observation_list, required_atom_list)
-    json_str = OpenDavid.run()
-    # json is converted to a directed hypergraph (a dhgraph object).
+    json_str = OpenDavid.run() # Wait until it terminates if interpreter is used.
+
+    # json is converted to a directed hypergraph.
     g = OpenDavid.build_proofgraph(json_str) 
     # "sample.png" will be generated in your cwd.
     g.render(filename="sample", format="png")
