@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-# The following knowledge base data was obtained from https://github.com/aurtg/open-david .
+# NOTE: This file was obtained from Open-David (distributed under MIT License, Copyright 2018 Kazeto Yamamoto), 
+# but a problem field was deleted from the original file.
+# https://github.com/aurtg/open-david .
 
 # ---- Rules
 
