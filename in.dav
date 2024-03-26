@@ -1,0 +1,99 @@
+# References
+## [Terminology of the Werewolf game]
+## https://aiwolf.org/control-panel/wp-content/uploads/2019/05/protocol_3_6.pdf
+## [Documenatation of Open-David]
+## https://github.com/aurtg/open-david/blob/master/manual_en.md
+# Regulation (5 players version)
+## Roles
+rule {villager1(x) ^ !villager(x) => false}
+rule {villager2(x) ^ !villager(x) => false}
+rule {villager1(x) ^ villager2(x) => false}
+rule villager:villager1 {villager1(x) => villager(x)}
+rule villager:villager2 {villager2(x) => villager(x)}
+
+mutual-exclusion {villager(x) v seer(x) v werewolf(x) v possessed(x)}
+rule {villager(x)  ^ !human(x) => false}
+rule {seer(x)      ^ !human(x) => false}
+rule {possessed(x) ^ !human(x) => false}
+rule {werewolf(x)  ^  human(x) => false}
+rule {villager(x)  ^ !human_side(x)    => false}
+rule {seer(x)      ^ !human_side(x)    => false}
+rule {possessed(x) ^ !werewolf_side(x) => false}
+rule {werewolf(x)  ^ !werewolf_side(x) => false}
+rule {human_side(x) ^ werewolf_side(x) => false}
+rule {seer(x)      ^ seer(y)      ^ (x != y) => false}
+rule {possessed(x) ^ possessed(y) ^ (x != y) => false}
+rule {werewolf(x)  ^ werewolf(y)  ^ (x != y) => false}
+## Divination
+rule {divination(x,x) => false}
+rule {seer(x) ^ divination(x,y) ^ werewolf(y) ^ !divined_werewolf(y,x) => false}
+rule {seer(x) ^ divination(x,y) ^ human(y)    ^ !divined_human(y,x)    => false}
+## Belief (about Roles)
+rule {villager(x)  ^ !bel_villager(x,x)  => false}
+rule {seer(x)      ^ !bel_seer(x,x)      => false}
+rule {possessed(x) ^ !bel_possessed(x,x) => false}
+rule {werewolf(x)  ^ !bel_werewolf(x,x)  => false}
+rule {bel_human(x,y) ^ bel_werewolf(x,y) => false}
+rule {bel_villager(x,y)  ^ !bel_human(x,y) => false}
+rule {bel_seer(x,y)      ^ !bel_human(x,y) => false}
+rule {bel_possessed(x,y) ^ !bel_human(x,y) => false}
+rule {bel_human_side(x,y) ^ bel_werewolf_side(x,y) => false}
+rule {bel_villager(x,y)  ^ !bel_human_side(x,y)    => false}
+rule {bel_seer(x,y)      ^ !bel_human_side(x,y)    => false}
+rule {bel_werewolf(x,y)  ^ !bel_werewolf_side(x,y) => false}
+rule {bel_possessed(x,y) ^ !bel_werewolf_side(x,y) => false}
+rule {human(x)         ^ !bel_human(x,x)         => false}
+rule {human_side(x)    ^ !bel_human_side(x,x)    => false}
+rule {werewolf_side(x) ^ !bel_werewolf_side(x,x) => false}
+## Belief (about Divination)
+rule {seer(x) ^ divination(x,y) ^  divined_human(y,x)    ^ !bel_human(x,y)    => false}
+rule {seer(x) ^ divination(x,y) ^ !divined_human(y,x)    ^  bel_human(x,y)    => false}
+rule {seer(x) ^ divination(x,y) ^  divined_werewolf(y,x) ^ !bel_werewolf(x,y) => false}
+rule {seer(x) ^ divination(x,y) ^ !divined_werewolf(y,x) ^  bel_werewolf(x,y) => false}
+## Intension
+rule {intend_declare_role(x,y)   ^ intend_lie_about_role(x,y)   => false}
+rule {intend_declare_result(x,y) ^ intend_lie_about_result(x,y) => false}
+# Ontology
+rule human:villager          {villager(x)  => human(x)}
+rule human:seer              {seer(x)      => human(x)}
+rule human:possessed         {possessed(x) => human(x)}
+rule human_side:villager     {villager(x)  => human_side(x)}
+rule human_side:seer         {seer(x)      => human_side(x)}
+rule werewolf_side:possessed {possessed(x) => werewolf_side(x)}
+rule werewolf_side:werewolf  {werewolf(x)  => werewolf_side(x)}
+rule {villager(x)   => bel_villager(x,x)}
+rule {seer(x)      => bel_seer(x,x)}
+rule {possessed(x) => bel_possessed(x,x)}
+rule {werewolf(x)  => bel_werewolf(x,x)}
+rule bel_human:bel_villager          {bel_villager(x,y)  => bel_human(x,y)}
+rule bel_human:bel_seer              {bel_seer(x,y)      => bel_human(x,y)}
+rule bel_human:bel_possessed         {bel_possessed(x,y) => bel_human(x,y)}
+rule bel_human_side:bel_villager     {bel_villager(x,y)  => bel_human_side(x,y)}
+rule bel_human_side:bel_seer         {bel_seer(x,y)      => bel_human_side(x,y)}
+rule bel_werewolf_side:bel_possessed {bel_possessed(x,y) => bel_werewolf_side(x,y)}
+rule bel_werewolf_side:bel_werewolf  {bel_werewolf(x,y)  => bel_werewolf_side(x,y)}
+# Strategies
+## Action: say (= comingout or estimate)
+### About: divined results
+rule say_divined_werewolf:seer          {seer(x) ^ divination(x,y) ^ divined_werewolf(y,x) ^ intend_declare_result(x,y) => say_divined_werewolf(x,y)}
+rule say_divined_werewolf:werewolf_side {werewolf_side(x) ^ bel_human(x,y) ^ intend_lie_about_result(x,y) => say_divined_werewolf(x,y)}
+rule {seer(x) ^ divination(x,y) ^ divined_human(y,x)    ^ intend_declare_result(x,y) => say_divined_human(x,y)}
+### About: roles
+rule say_villager:human_side     {human_side(x)    ^ bel_villager(x,y)      ^ intend_declare_role(x,y)   => say_villager(x,y)}
+rule say_villager:werewolf_side  {werewolf_side(x)                          ^ intend_lie_about_role(x,y) => say_villager(x,y)}
+rule say_seer:bel_seer           {                   bel_seer(x,y)          ^ intend_declare_role(x,y)   => say_seer(x,y)}
+rule say_seer:werewolf_side      {werewolf_side(x) ^ bel_werewolf_side(x,y) ^ intend_lie_about_role(x,y) => say_seer(x,y)}
+rule say_possessed:bel_possessed {                   bel_possessed(x,y)     ^ intend_declare_role(x,y)   => say_possessed(x,y)}
+rule say_possessed:werewolf_side {werewolf_side(x) ^ bel_human_side(x,y)    ^ intend_lie_about_role(x,y) => say_possessed(x,y)}
+rule say_werewolf:human_side     {human_side(x)    ^ bel_werewolf(x,y)      ^ intend_declare_role(x,y)   => say_werewolf(x,y)}
+rule say_werewolf:werewolf_side  {werewolf_side(x) ^ bel_human_side(x,y)    ^ intend_lie_about_role(x,y) => say_werewolf(x,y)}
+## Action: vote
+rule vote:human_side    {human_side(x)    ^ bel_werewolf_side(x,y) ^ intend_vote(x,y) => vote(x,y)}
+rule vote:werewolf_side {werewolf_side(x) ^ bel_human_side(x,y)    ^ intend_vote(x,y) => vote(x,y)}
+
+
+problem {
+    observe { say_seer(4, 4) ^ vote(3,2) ^ say_seer(1,1) ^ vote(5,4) ^ say_divined_human(4,1) ^ say_divined_werewolf(1,4) ^ vote(4,3) ^ vote(1,4) ^ say_seer(3,3) ^ say_divined_human(3,2) ^ say_villager(2,2) }
+    require { seer(3) }
+}
+
