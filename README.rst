@@ -3,7 +3,7 @@ pydavid: A simple Python Interface of Open-David
 
 Introduction
 ============
-``pydavid`` is a simple Python interface of Open-David, an abductive reasoner written in C++.
+``pydavid`` is a simple Python interface of Open-David (version 1.73), an abductive reasoner written in C++.
 
 Installation
 ============
