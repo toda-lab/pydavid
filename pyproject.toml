@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydavid"
-version = "1.0.0"
+version = "1.0.1"
 description = "A simple Python interface of Open-David"
 authors = ["Takahisa Toda <toda@disc.lab.uec.ac.jp>"]
 license = "MIT"
