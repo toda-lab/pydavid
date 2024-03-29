@@ -194,6 +194,10 @@ class OpenDavid:
         for item in solution["edges"]:
             head = item["head"]
             tail = item["tail"]
+            # Ignore unknown head/tail if exists.
+            if head not in vertices_dict\
+                or tail not in vertices_dict:
+                continue
             # Add a hyperarc per node but with the same label.
             for v in vertices_dict[tail]:
                 g.add_hyperarc(vertices_dict[head], v, label=str(item["index"]))
