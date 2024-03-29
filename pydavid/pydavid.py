@@ -126,11 +126,11 @@ class OpenDavid:
             raise Exception("_knowledge_base is not yet set.")
         if cls._problem == "":
             raise Exception("_problem is not yet set.")
-        if not generator in ["naive", "simple", "astar"]:
+        if generator not in ["naive", "simple", "astar"]:
             raise ValueError(f"invalid LHS generator: {generator}")
-        if not converter in ["weighted", "etcetera"]:
+        if converter not in ["weighted", "etcetera"]:
             raise ValueError(f"invalid ILP converter: {generator}")
-        if not solver in ["gurobi","lpsolve","cbc","scip"]:
+        if solver not in ["gurobi","lpsolve","cbc","scip"]:
             raise ValueError(f"invalid ILP solver: {solver}")
             
         with tempfile.TemporaryDirectory() as tempdir:
@@ -176,20 +176,20 @@ class OpenDavid:
             raise TypeError()
         g = DirectedHypergraph()
         json_dict = json.loads(json_str)
-        if not "results" in json_dict\
+        if "results" not in json_dict\
             or len(json_dict["results"]) == 0\
-            or not "solution" in json_dict["results"][0]:
+            or "solution" not in json_dict["results"][0]:
             return g  # empty graph if no solution.
         solution = json_dict["results"][0]["solution"]
-        if not "nodes" in solution:
+        if "nodes" not in solution:
             return g
         for item in solution["nodes"]:
             g.add_vertex(item["index"], label=item["atom"])
-        if not "hypernodes" in solution:
+        if "hypernodes" not in solution:
             return g
         vertices_dict = {item["index"]:tuple(item["nodes"])\
                         for item in solution["hypernodes"]}
-        if not "edges" in solution:
+        if "edges" not in solution:
             return g
         for item in solution["edges"]:
             head = item["head"]
