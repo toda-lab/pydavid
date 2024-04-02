@@ -1,9 +1,9 @@
 pydavid: A simple Python Interface of Open-David
 ==========================================================
-
-Introduction
-============
 ``pydavid`` is a simple Python interface of Open-David (version 1.73), an abductive reasoner written in C++.
+
+.. image:: sample.png
+    :alt: sample.png
 
 Installation
 ============
@@ -52,9 +52,6 @@ deleted, because ``pydavid`` separately sets knowledge base data and a problem d
 Please see `dhgraph <https://github.com/toda-lab/dhgraph>`__ for usage of
 dhgraph.
 
-
-.. image:: sample.png
-    :alt: sample.png
 
 Bugs/Requests/Discussions
 =========================
